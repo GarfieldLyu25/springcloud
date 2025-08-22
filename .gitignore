@@ -1,0 +1,139 @@
+# ================================
+# Java 编译输出
+# ================================
+# 字节码文件
+**/*.class
+
+# 打包文件
+*.war
+*.ear
+*.jar
+
+# 动态生成的类文件（如 JPA 等）
+**/target/generated-*
+
+# ================================
+# 构建工具 (Maven)
+# ================================
+# Maven 默认输出目录
+target/
+**/target/
+**/maven-target/
+
+# Maven 包装器 (mvnw) 的日志和下载的jar
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# 避免提交 Maven 的依赖和插件锁文件 (maven-wrapper.jar 本身是二进制的，但 .properties 可以提交)
+# !.mvn/wrapper/maven-wrapper.properties # (通常这个文件是需要提交的，所以默认注释掉排除规则)
+
+# ================================
+# 构建工具 (Gradle)
+# ================================
+# Gradle 构建目录
+.gradle/
+build/
+**/build/
+
+# Gradle 包装器 (gradlew) 的配置和下载的jar
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# 本地 Gradle 配置缓存
+.gradle/loom-cache/
+
+# ================================
+# IDE (IntelliJ IDEA)
+# ================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# 插件生成的文件
+# 如果你使用 Lombok 等插件，可能需要这些
+**/lombok.config
+
+# ================================
+# IDE (Eclipse)
+# ================================
+.settings/
+bin/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+
+# .classpath 和 .project 文件
+# 通常建议提交，以便其他开发者导入项目，但如果你使用其他工具（如Maven）管理，则可以忽略
+# .classpath
+# .project
+
+# ================================
+# IDE (VSCode)
+# ================================
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ================================
+# 依赖和日志文件
+# ================================
+# 日志
+*.log
+logs/
+**/logs/
+
+# 敏感数据 (密钥、配置文件等)
+# 永远不要将包含密码、API密钥的配置文件提交到Git！
+*.key
+*.keystore
+*.jks
+application-dev.properties
+application-prod.properties
+/config/application-secret.properties
+
+# 数据文件 (如 H2 数据库)
+*.db
+*.h2.db
+*.mv.db
+
+# ================================
+# 操作系统生成的文件
+# ================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ================================
+# 其他
+# ================================
+# 临时文件
+*.tmp
+*.temp
+
+# 覆盖率报告（由 Jacoco、Cobertura 等生成）
+coverage/
+**/coverage/
+*.exec
+
+# 测试报告（由 Surefire、Failsafe 等生成）
+**/surefire-reports/
+**/failsafe-reports/
+**/test-results/
