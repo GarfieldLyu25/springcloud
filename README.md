@@ -23,7 +23,7 @@ docker-compose.yml快速启动项目所有环境
 
 本地编写代码后提交git 发现提交后对代码重新编译 跑测试 然后部署 这就是devops吗 后面再看看自动化测试和jenkins
 
-day3 微服务
+day3 day4 微服务
 
 根据业务拆分商城项目
 
@@ -48,3 +48,23 @@ springcloud先读nacos配置，然后springboot再初始化
 还可以热更新一些值
 
 今天的问题：应该只开放8080端口让前端访问，但其他的端口服务也可以被外部访问到，应该其他端口服务拒绝访问，只接受内部相互访问
+
+day5 Sentinel
+
+服务启动后要访问一次Sentinel才显示
+
+jmeter测试时候别点上面绿色按钮启动，那个是所有测试都启动
+oom报错 加上--ulimit nofile=65536:65536 \
+
+docker run --name seata \
+-p 8099:8099 \
+-p 7099:7099 \
+-e SEATA_IP=192.168.1.3 \
+-v home/xf/seata:/seata-server/resources \
+--privileged=true \
+--ulimit nofile=65536:65536 \
+--network hm-net \
+-d \
+seataio/seata-server:1.5.2
+
+AT模式可以执行完就提交 然后把原来数据存到数据库 这样可以提高效率不用卡这数据库 如果出现问题按照undolog回滚数据，否则删除原来的数据
