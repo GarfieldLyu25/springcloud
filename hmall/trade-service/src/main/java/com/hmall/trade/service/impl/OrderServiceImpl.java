@@ -17,6 +17,7 @@ import com.hmall.trade.service.IOrderDetailService;
 import com.hmall.trade.service.IOrderService;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final ItemClient itemClient;
     private final IOrderDetailService detailService;
     private final CartClient cartClient;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @GlobalTransactional
@@ -81,13 +83,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
         // 4.清理购物车商品
-        cartClient.deleteCartItemByIds(itemIds);
+        //cartClient.deleteCartItemByIds(itemIds);
+        rabbitTemplate.convertAndSend("trade.topic","order.create",itemIds);
         return order.getId();
     }
 
     @Override
     public void markOrderPaySuccess(Long orderId) {
-
+        Order order = getById(orderId);
+        order.setStatus(2);
+        updateById(order);
     }
 
     private List<OrderDetail> buildDetails(Long orderId, List<ItemDTO> items, Map<Long, Integer> numMap) {
