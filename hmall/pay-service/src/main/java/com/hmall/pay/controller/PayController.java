@@ -1,5 +1,6 @@
 package com.hmall.pay.controller;
 
+import com.hmall.api.dto.PayOrderDTO;
 import com.hmall.common.exception.BizIllegalException;
 
 import com.hmall.common.utils.BeanUtils;
@@ -47,4 +48,16 @@ public class PayController {
     public List<PayOrderVO> queryPayOrders(){
         return BeanUtils.copyList(payOrderService.list(), PayOrderVO.class);
     }
+    @ApiOperation("修改超时状态")
+    @PutMapping("/biz/timeout")
+    public void updatePayOrderTimeout(@RequestBody Long orderId){
+        payOrderService.updatePayOrderTimeout(orderId);
+    }
+    @ApiOperation("查询订单")
+    @GetMapping("/biz/{id}")
+    public PayOrderDTO queryPayOrderByBizOrderNo(@PathVariable("id") Long orderId){
+        return payOrderService.queryPayOrderByBizOrderNo(orderId);
+    }
+
+
 }

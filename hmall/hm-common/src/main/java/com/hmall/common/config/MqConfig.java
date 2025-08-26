@@ -1,6 +1,8 @@
 package com.hmall.common.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hmall.common.utils.RabbitMqHelper;
 import com.hmall.common.utils.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.MessagePostProcessor;
@@ -8,6 +10,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +55,11 @@ public class MqConfig {
 //            return message;
 //        });
         return rabbitTemplate;
+    }
+
+    @Bean
+    public RabbitMqHelper rabbitMqHelper(RabbitTemplate rabbitTemplate){
+        return new RabbitMqHelper(rabbitTemplate);
     }
 
 }

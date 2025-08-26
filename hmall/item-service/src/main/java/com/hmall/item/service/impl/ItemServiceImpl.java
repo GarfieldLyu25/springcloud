@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -40,5 +41,13 @@ public class ItemServiceImpl extends ServiceImpl<ItemMapper, Item> implements II
     @Override
     public List<ItemDTO> queryItemByIds(Collection<Long> ids) {
         return BeanUtils.copyList(listByIds(ids), ItemDTO.class);
+    }
+
+    @Override
+    public void restoreStock(List<OrderDetailDTO> OrderDetails) {
+        //List<Long> itemIds = OrderDetails.stream().map(OrderDetailDTO::getItemId).collect(Collectors.toList());
+        for (OrderDetailDTO dto : OrderDetails) {
+            baseMapper.plusStock(dto);
+        }
     }
 }

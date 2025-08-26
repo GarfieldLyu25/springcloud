@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmall.api.client.TradeClient;
 
 import com.hmall.api.client.Userclient;
+import com.hmall.api.dto.PayOrderDTO;
 import com.hmall.common.exception.BizIllegalException;
 import com.hmall.common.utils.BeanUtils;
 import com.hmall.common.utils.UserContext;
@@ -73,6 +74,17 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
         } catch (Exception e) {
             log.error("支付成功的消息发送失败，支付单id：{}， 交易单id：{}", po.getId(), po.getBizOrderNo(), e);
         }
+    }
+
+    @Override
+    public void updatePayOrderTimeout(Long orderId) {
+        lambdaUpdate().eq(PayOrder::getBizOrderNo, orderId).set(PayOrder::getStatus,2).eq(PayOrder::getStatus,1).set(PayOrder::getUpdateTime,LocalDateTime.now()).update();
+    }
+
+    @Override
+    public PayOrderDTO queryPayOrderByBizOrderNo(Long orderId) {
+        PayOrder one = lambdaQuery().eq(PayOrder::getBizOrderNo, orderId).one();
+        return BeanUtils.copyProperties(one, PayOrderDTO.class);
     }
 
     public boolean markPayOrderSuccess(Long id, LocalDateTime successTime) {

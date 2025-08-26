@@ -1,13 +1,16 @@
 package com.hmall.trade.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmall.api.client.CartClient;
 import com.hmall.api.client.ItemClient;
+import com.hmall.api.client.PayClient;
 import com.hmall.api.dto.ItemDTO;
 
 import com.hmall.api.dto.OrderDetailDTO;
 import com.hmall.common.exception.BadRequestException;
 import com.hmall.common.utils.UserContext;
+import com.hmall.trade.constants.MQConstants;
 import com.hmall.trade.domain.dto.OrderFormDTO;
 import com.hmall.trade.domain.po.Order;
 
@@ -21,6 +24,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +44,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private final IOrderDetailService detailService;
     private final CartClient cartClient;
     private final RabbitTemplate rabbitTemplate;
+    private final PayClient payClient;
 
     @Override
     @GlobalTransactional
@@ -85,14 +90,39 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         // 4.清理购物车商品
         //cartClient.deleteCartItemByIds(itemIds);
         rabbitTemplate.convertAndSend("trade.topic","order.create",itemIds);
+        //超时处理
+        rabbitTemplate.convertAndSend(MQConstants.DELAY_EXCHANGE_NAME,MQConstants.DELAY_ORDER_KEY,order.getId(),message -> {
+            message.getMessageProperties().setDelay(10000);
+            return message;
+        });
         return order.getId();
+
+
     }
 
     @Override
     public void markOrderPaySuccess(Long orderId) {
-        Order order = getById(orderId);
-        order.setStatus(2);
-        updateById(order);
+        // UPDATE `order` SET status = ? , pay_time = ? WHERE id = ? AND status = 1
+        lambdaUpdate()
+                .set(Order::getStatus, 2)
+                .set(Order::getPayTime, LocalDateTime.now())
+                .eq(Order::getId, orderId)
+                .eq(Order::getStatus, 1)
+                .update();
+    }
+
+    @Override
+    public void cancelOrder(Long orderId) {
+        //交易关闭 恢复库存
+        lambdaUpdate().set(Order::getStatus, 5)
+                .eq(Order::getId, orderId)
+                .eq(Order::getStatus, 1)
+                .update();
+        List<OrderDetail> list = detailService.lambdaQuery().eq(OrderDetail::getOrderId, orderId).list();
+        List<OrderDetailDTO> orderDetailDTOS = BeanUtil.copyToList(list, OrderDetailDTO.class);
+        itemClient.restoreStock(orderDetailDTOS);
+        //pay的状态改为超时
+        payClient.updatePayOrderTimeout(orderId);
     }
 
     private List<OrderDetail> buildDetails(Long orderId, List<ItemDTO> items, Map<Long, Integer> numMap) {
