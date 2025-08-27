@@ -1,9 +1,7 @@
 package com.hmall.trade.listener;
 
-import com.hmall.common.utils.UserContext;
 import com.hmall.trade.service.IOrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;

@@ -7,6 +7,7 @@ import com.hmall.common.domain.PageDTO;
 import com.hmall.common.domain.PageQuery;
 import com.hmall.common.utils.BeanUtils;
 
+import com.hmall.common.utils.RabbitMqHelper;
 import com.hmall.item.domain.dto.ItemDTO;
 import com.hmall.item.domain.dto.OrderDetailDTO;
 import com.hmall.item.domain.po.Item;
@@ -14,6 +15,7 @@ import com.hmall.item.service.IItemService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.List;
 public class ItemController {
 
     private final IItemService itemService;
-
+    private final RabbitMqHelper rabbitMqHelper;
     @ApiOperation("分页查询商品")
     @GetMapping("/page")
     public PageDTO<ItemDTO> queryItemByPage(PageQuery query) {
@@ -50,9 +52,13 @@ public class ItemController {
 
     @ApiOperation("新增商品")
     @PostMapping
-    public void saveItem(@RequestBody ItemDTO item) {
+    public void saveItem(@RequestBody ItemDTO itemDTO) {
         // 新增
-        itemService.save(BeanUtils.copyBean(item, Item.class));
+        Item item = BeanUtils.copyBean(itemDTO, Item.class);
+        itemService.save(item);
+        itemDTO.setId(item.getId());
+        //获取id
+        rabbitMqHelper.sendMessage("search.direct", "item.index", itemDTO.getId());
     }
 
     @ApiOperation("更新商品状态")
@@ -62,6 +68,10 @@ public class ItemController {
         item.setId(id);
         item.setStatus(status);
         itemService.updateById(item);
+        if(status == 2){
+            rabbitMqHelper.sendMessage("search.direct", "item.updateStates", id);
+        }
+
     }
 
     @ApiOperation("更新商品")
@@ -71,12 +81,14 @@ public class ItemController {
         item.setStatus(null);
         // 更新
         itemService.updateById(BeanUtils.copyBean(item, Item.class));
+        rabbitMqHelper.sendMessage("search.direct", "item.index", item.getId());
     }
 
     @ApiOperation("根据id删除商品")
     @DeleteMapping("{id}")
     public void deleteItemById(@PathVariable("id") Long id) {
         itemService.removeById(id);
+        rabbitMqHelper.sendMessage("search.direct", "item.delete", id);
     }
 
     @ApiOperation("批量扣减库存")

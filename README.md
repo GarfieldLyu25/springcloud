@@ -69,8 +69,36 @@ seataio/seata-server:1.5.2
 
 AT模式可以执行完就提交 然后把原来数据存到数据库 这样可以提高效率不用卡这数据库 如果出现问题按照undolog回滚数据，否则删除原来的数据
 
+day6 7
 common中的配置记得放到spring.factories中才生效
 配置了转换器，发送前将userid放入header中
 然后用aop把RabbitListener当切面 把message传到切面 执行前存执行后删theradlocal
 
 上传dealy插件后需要更改权限 否则会不生效
+
+mq学的比较糟心，莫名其妙的问题多
+
+day8
+docker run -d \
+--name es \
+-e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+-e "discovery.type=single-node" \
+-v es-data:/usr/share/elasticsearch/data \
+-v es-plugins:/usr/share/elasticsearch/plugins \
+-v es-configs:/usr/share/elasticsearch/config \
+--privileged \
+--restart=always \
+--network hm-net \
+-p 9200:9200 \
+-p 9300:9300 \
+elasticsearch:7.12.1
+
+多添加一个-v
+
+docker exec -it es ./bin/elasticsearch-plugin  install https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-7.12.1.zip
+
+自己下载 老师给的ik分词不能用
+
+request.add(new IndexRequest("items").id("1").source(doc, XContentType.JSON));
+request.add(new IndexRequest("items").id("2").source(doc, XContentType.JSON));
+批量插入这里必须给的是json字符串
