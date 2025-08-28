@@ -102,3 +102,6 @@ docker exec -it es ./bin/elasticsearch-plugin  install https://release.infinilab
 request.add(new IndexRequest("items").id("1").source(doc, XContentType.JSON));
 request.add(new IndexRequest("items").id("2").source(doc, XContentType.JSON));
 批量插入这里必须给的是json字符串
+
+可以自定义一个注解 用aop获取要发的交换机和key，发送数据
+记得配RestHighLevelClient
