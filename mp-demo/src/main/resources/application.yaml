@@ -4,18 +4,31 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: mpw:l17Neyh63v8A1tQZXJtueQ==  #root
     password: mpw:gXU0Jqp025IDezdaRBO/AQ==   #123456
+  redis:
+#    sentinel:
+#      master: hmaster # 集群名
+#      nodes: # 哨兵地址列表
+#        - 192.168.150.128:27001
+#        - 192.168.150.128:27002
+#        - 192.168.150.128:27003
+    cluster:
+      nodes:
+        - 192.168.150.128:7001
+        - 192.168.150.128:7002
+        - 192.168.150.128:7003
+        - 192.168.150.128:7004
+        - 192.168.150.128:7005
+        - 192.168.150.128:7006
 logging:
   level:
     com.itheima: debug
   pattern:
     dateformat: HH:mm:ss
+
 #mybatis:
 #  mapper-locations: classpath*:mapper/*.xml
 server:
   address: 0.0.0.0
-
-
-
 
 mybatis-plus:
   type-aliases-package: com.itheima.mp.domain.po
